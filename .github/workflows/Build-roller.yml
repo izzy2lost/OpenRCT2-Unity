@@ -11,13 +11,10 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # 🛠 Install UWP Tools with Visual Studio Installer
-    - name: Install Visual Studio Build Tools
+    - name: Install UWP Build Tools
       run: |
-        $vsPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
-        &"$vsPath\Common7\Tools\VsDevCmd.bat" -host_arch=amd64 -arch=amd64
-        $installerPath = "$vsPath\Installer\vs_installer.exe"
-        &$installerPath modify --installPath $vsPath --add Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
+       Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+       Start-Process -FilePath .\vs_buildtools.exe -ArgumentList '--add', 'Microsoft.VisualStudio.Workload.UniversalBuildTools', '--quiet', '--wait', '--norestart' -NoNewWindow -Wait
     
     # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
