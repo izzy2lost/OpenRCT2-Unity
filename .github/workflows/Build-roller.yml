@@ -1,12 +1,7 @@
 name: Build OpenRCT2-Unity (UWP)
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch
 
 jobs:
   build:
