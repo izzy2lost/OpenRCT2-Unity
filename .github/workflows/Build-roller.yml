@@ -19,6 +19,7 @@ jobs:
 
         # Ensure the temporary directory exists
         if (-not (Test-Path -Path "C:\\tmp")) {
+          Write-Host "Creating temporary directory"
           New-Item -ItemType Directory -Path "C:\\tmp" | Out-Null
         }
 
@@ -26,6 +27,7 @@ jobs:
         Write-Host "Downloading Visual Studio Build Tools..."
         try {
           Invoke-WebRequest -Uri $VsInstallerUrl -OutFile $Dest
+          Write-Host "Download successful"
         } catch {
           Write-Error "Failed to download Visual Studio Build Tools installer: $_"
           exit 1
@@ -42,6 +44,7 @@ jobs:
         )
         try {
           Start-Process -FilePath $Dest -ArgumentList $Params -Wait -NoNewWindow
+          Write-Host "Installation complete"
         } catch {
           Write-Error "Failed to install Visual Studio Build Tools: $_"
           exit 1
@@ -64,11 +67,15 @@ jobs:
 
     - name: Build Unity Project for UWP
       run: |
+        Write-Host "Starting Unity build process"
         Unity.exe -batchmode -quit -nographics -logFile unity.log -projectPath . -executeMethod UnityEditor.BuildPipeline.BuildPlayer -buildTarget WSAPlayer -customBuildPath Build/UWP -customBuildTarget WSAPlayer -customBuildName OpenRCT2-Unity-UWP
+        Write-Host "Unity build process finished"
 
     - name: Build UWP Solution
       run: |
+        Write-Host "Starting MSBuild process"
         msbuild Build/UWP/OpenRCT2-Unity.sln /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
+        Write-Host "MSBuild process finished"
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
