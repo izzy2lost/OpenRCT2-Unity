@@ -15,16 +15,50 @@ jobs:
       shell: powershell
       run: |
         $Dest = "C:\\tmp\\vs_buildtools.exe"
-        Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile $Dest
+        $VsInstallerUrl = "https://aka.ms/vs/17/release/vs_buildtools.exe"
+
+        # Ensure the temporary directory exists
+        if (-not (Test-Path -Path "C:\\tmp")) {
+          New-Item -ItemType Directory -Path "C:\\tmp" | Out-Null
+        }
+
+        # Download the Visual Studio Build Tools installer
+        Write-Host "Downloading Visual Studio Build Tools..."
+        try {
+          Invoke-WebRequest -Uri $VsInstallerUrl -OutFile $Dest
+        } catch {
+          Write-Error "Failed to download Visual Studio Build Tools installer: $_"
+          exit 1
+        }
+
+        # Install Visual Studio Build Tools with required components
+        Write-Host "Installing Visual Studio Build Tools..."
         $Params = @(
-          "--add Microsoft.VisualStudio.Workload.UniversalBuildTools", # Universal Windows Platform Development
-          "--add Microsoft.VisualStudio.Component.Windows10SDK.19041", # Win10 SDK 19041
+          "--add", "Microsoft.VisualStudio.Workload.UniversalBuildTools", # Universal Windows Platform Development
+          "--add", "Microsoft.VisualStudio.Component.Windows10SDK.19041", # Win10 SDK 19041
           "--quiet",
-          "--wait"
+          "--wait",
+          "--norestart"
         )
-        Start-Process -FilePath $Dest -ArgumentList ($Params -join " ") -Wait
-        Remove-Item $Dest
-    
+        try {
+          Start-Process -FilePath $Dest -ArgumentList $Params -Wait -NoNewWindow
+        } catch {
+          Write-Error "Failed to install Visual Studio Build Tools: $_"
+          exit 1
+        }
+
+        # Clean up the installer
+        Write-Host "Cleaning up installer..."
+        Remove-Item -Path $Dest -Force
+
+        # Verify installation
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Visual Studio Build Tools installation failed with exit code $LASTEXITCODE"
+          exit 1
+        } else {
+          Write-Host "Visual Studio Build Tools installed successfully."
+        }
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
