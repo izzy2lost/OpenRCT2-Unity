@@ -15,7 +15,7 @@ jobs:
     - name: Install UWP Build Tools
       run: |
         # Use the Visual Studio Installer to add UWP workload
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe" install --add Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe" Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
         
     # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
