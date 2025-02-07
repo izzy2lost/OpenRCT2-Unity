@@ -15,10 +15,7 @@ jobs:
     - name: Install UWP Build Tools
       run: |
         # Use the Visual Studio Installer to add UWP workload
-        "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" ^
-        --add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
-        --quiet ^
-        --wait
+        "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" --add Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
 
     # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
@@ -27,23 +24,13 @@ jobs:
     # 🎮 Switch Unity Project to UWP & Export Solution
     - name: Build Unity Project for UWP
       run: |
-        Unity.exe -batchmode -quit -nographics -logFile unity.log ^
-        -projectPath . ^
-        -executeMethod UnityEditor.BuildPipeline.BuildPlayer ^
-        -buildTarget WSAPlayer ^
-        -customBuildPath Build/UWP ^
-        -customBuildTarget WSAPlayer ^
-        -customBuildName OpenRCT2-Unity-UWP
+        Unity.exe -batchmode -quit -nographics -logFile unity.log -projectPath . -executeMethod UnityEditor.BuildPipeline.BuildPlayer -buildTarget WSAPlayer -customBuildPath Build/UWP -customBuildTarget WSAPlayer -customBuildName OpenRCT2-Unity-UWP
 
     # 🛠 Build UWP Solution using MSBuild
     - name: Build UWP Solution
       run: |
-        msbuild Build/UWP/OpenRCT2-Unity.sln ^
-        /p:Configuration=Release ^
-        /p:Platform=x64 ^
-        /p:AppxBundle=Always ^
-        /p:UapAppxPackageBuildMode=StoreUpload
-        
+        msbuild Build/UWP/OpenRCT2-Unity.sln /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
+
     # 📤 Upload Build Artifacts
     - name: Upload UWP Build
       uses: actions/upload-artifact@v4
