@@ -1,7 +1,7 @@
 name: Build OpenRCT2-Unity (UWP)
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,11 +11,14 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # 🛠 Install Additional Visual Studio Components
-    - name: Install UWP Dependencies
+    # 🛠 Install UWP Tools with Visual Studio Installer
+    - name: Install UWP Build Tools
       run: |
-        choco install visualstudio2022-workload-vctools --yes
-        choco install visualstudio2022-workload-uwpbuildtools --yes
+        # Use the Visual Studio Installer to add UWP workload
+        "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" ^
+        --add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
+        --quiet ^
+        --wait
 
     # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
@@ -40,7 +43,7 @@ jobs:
         /p:Platform=x64 ^
         /p:AppxBundle=Always ^
         /p:UapAppxPackageBuildMode=StoreUpload
-
+        
     # 📤 Upload Build Artifacts
     - name: Upload UWP Build
       uses: actions/upload-artifact@v4
