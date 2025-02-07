@@ -12,11 +12,13 @@ jobs:
       uses: actions/checkout@v4
 
     # 🛠 Install UWP Tools with Visual Studio Installer
-    - name: Install UWP Build Tools
+    - name: Install Visual Studio Build Tools
       run: |
-        # Use the Visual Studio Installer to add UWP workload
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe" --add Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
-        
+        $vsPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+        &"$vsPath\Common7\Tools\VsDevCmd.bat" -host_arch=amd64 -arch=amd64
+        $installerPath = "$vsPath\Installer\vs_installer.exe"
+        &$installerPath modify --installPath $vsPath --add Microsoft.VisualStudio.Workload.UniversalBuildTools --quiet --wait
+    
     # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
