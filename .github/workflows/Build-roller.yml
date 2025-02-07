@@ -11,27 +11,32 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Install UWP Build Tools
+    - name: Install Visual Studio 2022 Build Tools
+      shell: powershell
       run: |
-       Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
-       Start-Process -FilePath .\vs_buildtools.exe -ArgumentList '--add', 'Microsoft.VisualStudio.Workload.UniversalBuildTools', '--quiet', '--wait', '--norestart' -NoNewWindow -Wait
+        $Dest = "C:\\tmp\\vs_buildtools.exe"
+        Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile $Dest
+        $Params = @(
+          "--add Microsoft.VisualStudio.Workload.UniversalBuildTools", # Universal Windows Platform Development
+          "--add Microsoft.VisualStudio.Component.Windows10SDK.19041", # Win10 SDK 19041
+          "--quiet",
+          "--wait"
+        )
+        Start-Process -FilePath $Dest -ArgumentList ($Params -join " ") -Wait
+        Remove-Item $Dest
     
-    # 🛠 Setup MSBuild (Already Installed)
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-    # 🎮 Switch Unity Project to UWP & Export Solution
     - name: Build Unity Project for UWP
       run: |
         Unity.exe -batchmode -quit -nographics -logFile unity.log -projectPath . -executeMethod UnityEditor.BuildPipeline.BuildPlayer -buildTarget WSAPlayer -customBuildPath Build/UWP -customBuildTarget WSAPlayer -customBuildName OpenRCT2-Unity-UWP
 
-    # 🛠 Build UWP Solution using MSBuild
     - name: Build UWP Solution
       run: |
         msbuild Build/UWP/OpenRCT2-Unity.sln /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
 
-    # 📤 Upload Build Artifacts
-    - name: Upload UWP Build
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: UWP-Build
