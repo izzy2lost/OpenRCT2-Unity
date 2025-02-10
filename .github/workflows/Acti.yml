@@ -8,6 +8,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Install Unity 2021.3.1f1
+        run: |
+          curl -o UnitySetup.exe https://download.unity3d.com/download_unity/2021.3.1f1/Windows64EditorInstaller/UnitySetup64.exe
+          Start-Process -Wait -NoNewWindow -FilePath UnitySetup.exe -ArgumentList "/S /D=C:\Unity"
+        shell: pwsh
+  
       - name: Generate Unity Activation Request
         run: |
           "C:\Program Files\Unity\Hub\Editor\2021.3.1f1\Editor\Unity.exe" -batchmode -quit -createManualActivationFile
