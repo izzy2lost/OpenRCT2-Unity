@@ -1,0 +1,20 @@
+name: Unity License Activation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  activate_license:
+    runs-on: windows-latest
+
+    steps:
+      - name: Generate Unity Activation Request
+        run: |
+          "C:\Program Files\Unity\Hub\Editor\2021.3.1f1\Editor\Unity.exe" -batchmode -quit -createManualActivationFile
+        shell: cmd
+
+      - name: Upload Activation File
+        uses: actions/upload-artifact@v3
+        with:
+          name: UnityLicenseRequest
+          path: Unity_v2021.x.alf
