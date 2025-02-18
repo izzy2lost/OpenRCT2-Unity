@@ -1,4 +1,4 @@
-name: Build OpenRCT2-Unity (UWP)
+name: Build OpenRCT2-Unity UWP
 
 on:
   workflow_dispatch:
@@ -8,83 +8,23 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install Visual Studio 2022 Build Tools
-      shell: powershell
-      run: |
-        $Dest = "C:\\tmp\\vs_buildtools.exe"
-        $VsInstallerUrl = "https://aka.ms/vs/17/release/vs_buildtools.exe"
+      - name: Build OpenRCT2-Bindings
+        run: |
+          msbuild src/openrct2-bindings/openrct2-bindings.vcxproj /p:Configuration=Release /p:Platform=x64
 
-        # Ensure the temporary directory exists
-        if (-not (Test-Path -Path "C:\\tmp")) {
-          Write-Host "Creating temporary directory"
-          New-Item -ItemType Directory -Path "C:\\tmp" | Out-Null
-        }
+      - name: Build OpenRCT2-Unity for UWP
+        id: build
+        uses: buildalon/unity-uwp-builder@v1.0.4
+        with:
+          projectPath: 'src/openrct2-unity'
+          buildTarget: 'UWP'
+          outputPath: 'BuildOutput'
 
-        # Download the Visual Studio Build Tools installer
-        Write-Host "Downloading Visual Studio Build Tools..."
-        try {
-          Invoke-WebRequest -Uri $VsInstallerUrl -OutFile $Dest
-          Write-Host "Download successful"
-        } catch {
-          Write-Error "Failed to download Visual Studio Build Tools installer: $_"
-          exit 1
-        }
-
-        # Install Visual Studio Build Tools with required components
-        Write-Host "Installing Visual Studio Build Tools..."
-        $Params = @(
-          "--add", "Microsoft.VisualStudio.Workload.UniversalBuildTools", # Universal Windows Platform Development
-          "--add", "Microsoft.VisualStudio.Component.Windows10SDK.19041", # Win10 SDK 19041
-          "--quiet",
-          "--wait",
-          "--norestart"
-        )
-        try {
-          Start-Process -FilePath $Dest -ArgumentList $Params -Wait -NoNewWindow
-          Write-Host "Installation complete"
-        } catch {
-          Write-Error "Failed to install Visual Studio Build Tools: $_"
-          exit 1
-        }
-
-        # Clean up the installer
-        Write-Host "Cleaning up installer..."
-        Remove-Item -Path $Dest -Force
-
-        # Verify installation
-        if ($LASTEXITCODE -ne 0) {
-          Write-Error "Visual Studio Build Tools installation failed with exit code $LASTEXITCODE"
-          exit 1
-        } else {
-          Write-Host "Visual Studio Build Tools installed successfully."
-        }
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Build Unity Project for UWP
-      run: |
-        Write-Host "Starting Unity build process"
-        Unity.exe -batchmode -quit -nographics -logFile unity.log -projectPath . -executeMethod UnityEditor.BuildPipeline.BuildPlayer -buildTarget WSAPlayer -customBuildPath Build/UWP -customBuildTarget WSAPlayer -customBuildName OpenRCT2-Unity-UWP
-        Write-Host "Unity build process finished"
-
-    - name: Build UWP Solution
-      run: |
-        Write-Host "Starting MSBuild process"
-        msbuild Build/UWP/OpenRCT2-Unity.sln /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload
-        Write-Host "MSBuild process finished"
-
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: UWP-Build
-        path: Build/UWP/AppPackages
-
-    - name: Upload Unity Package
-      uses: actions/upload-artifact@v4
-      with:
-        name: Unity-Package
-        path: Build/OpenRCT2-Unity.unitypackage
+      - name: Upload UWP Build as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRCT2-UWP
+          path: ${{ steps.build.outputs.executable }}
