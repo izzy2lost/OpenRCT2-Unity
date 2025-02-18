@@ -18,8 +18,8 @@ jobs:
         shell: cmd
         run: |
           git clone https://github.com/nlohmann/json.git
-          xcopy /E /I json/include src/openrct2/thirdparty/json
-          
+          robocopy json/include src/openrct2/thirdparty/json /E
+    
       - name: Build openrct2-bindings
         shell: cmd
         run: |
