@@ -10,11 +10,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Build OpenRCT2-Bindings
+        with:
+          submodules: true
+          fetch-depth: 0
+          
+      - name: Build openrct2-bindings
+        shell: cmd
         run: |
-          msbuild src/openrct2-bindings/openrct2-bindings.vcxproj /p:Configuration=Release /p:Platform=x64
-
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" src/openrct2-bindings/openrct2-bindings.vcxproj /p:Configuration=Release /p:Platform=x64
+    
       - name: Build OpenRCT2-Unity for UWP
         id: build
         uses: buildalon/unity-uwp-builder@v1.0.4
