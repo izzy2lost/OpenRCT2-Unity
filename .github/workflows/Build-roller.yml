@@ -14,15 +14,22 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Download json_fwd.hpp
+      - name: Set Up Developer Command Prompt
         shell: cmd
         run: |
-          curl -L -o src/openrct2/thirdparty/json/json_fwd.hpp https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json_fwd.hpp
-    
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+
+      - name: Build OpenRCT2 Core
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+          msbuild src/openrct2/openrct2.proj /t:build /p:Platform=x64
+
       - name: Build openrct2-bindings
         shell: cmd
         run: |
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" src/openrct2-bindings/openrct2-bindings.vcxproj /p:Configuration=Release /p:Platform=x64
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+          msbuild src/openrct2-bindings/openrct2-bindings.vcxproj /p:Configuration=Release /p:Platform=x64
     
       - name: Build OpenRCT2-Unity for UWP
         id: build
