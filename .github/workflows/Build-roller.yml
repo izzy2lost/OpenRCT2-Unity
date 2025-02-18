@@ -13,6 +13,12 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
+
+      - name: Install nlohmann/json
+        shell: cmd
+        run: |
+          git clone https://github.com/nlohmann/json.git
+          xcopy /E /I json/include src/openrct2/thirdparty/json
           
       - name: Build openrct2-bindings
         shell: cmd
