@@ -14,11 +14,10 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Install nlohmann/json
+      - name: Download json_fwd.hpp
         shell: cmd
         run: |
-          git clone https://github.com/nlohmann/json.git
-          robocopy json/include src/openrct2/thirdparty/json /E
+          curl -L -o src/openrct2/thirdparty/json/json_fwd.hpp https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json_fwd.hpp
     
       - name: Build openrct2-bindings
         shell: cmd
