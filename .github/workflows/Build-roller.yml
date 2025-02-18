@@ -23,7 +23,7 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
-          msbuild openrct2.proj /t:build /p:Platform=x64
+          msbuild openrct2.proj /t:build /p:Platform=x64 /p:configuration=release
 
       - name: Build openrct2-bindings
         shell: cmd
